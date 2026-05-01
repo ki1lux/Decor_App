@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'wishlist_screen.dart';
+import 'profile_screen.dart';
 
 // ─── Color Palette ──────────────────────────────────────────────────────────
 const Color kBackground = Color(0xFFF5F0E8);
@@ -23,33 +25,31 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _currentNav = 0;
 
+  Widget _buildCurrentScreen() {
+    switch (_currentNav) {
+      case 2:
+        return const WishlistScreen();
+      case 3:
+        return const ProfileScreen();
+      default:
+        return _buildHomeContent();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final topPad = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: kBackground,
       body: Stack(
         children: [
-          // ── Scrollable content ──
-          SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.only(top: topPad + 8, bottom: 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 20),
-                _buildHeadline(),
-                const SizedBox(height: 20),
-                _buildSearchBar(),
-                const SizedBox(height: 24),
-                _buildPromoBanner(),
-                const SizedBox(height: 28),
-                _buildCategories(),
-                const SizedBox(height: 28),
-                _buildSaleBanner(),
-                const SizedBox(height: 16),
-              ],
+          // ── Current screen content ──
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            child: KeyedSubtree(
+              key: ValueKey(_currentNav),
+              child: _buildCurrentScreen(),
             ),
           ),
           // ── Bottom Nav ──
@@ -59,6 +59,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             bottom: 0,
             child: _buildBottomNav(),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomeContent() {
+    final topPad = MediaQuery.of(context).padding.top;
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.only(top: topPad + 8, bottom: 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 20),
+          _buildHeadline(),
+          const SizedBox(height: 20),
+          _buildSearchBar(),
+          const SizedBox(height: 24),
+          _buildPromoBanner(),
+          const SizedBox(height: 28),
+          _buildCategories(),
+          const SizedBox(height: 28),
+          _buildSaleBanner(),
+          const SizedBox(height: 16),
         ],
       ),
     );
