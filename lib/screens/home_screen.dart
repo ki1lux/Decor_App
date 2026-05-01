@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'wishlist_screen.dart';
 import 'profile_screen.dart';
+import 'explore_screen.dart';
+import 'cart_screen.dart';
 
 // ─── Color Palette ──────────────────────────────────────────────────────────
 const Color kBackground = Color(0xFFF5F0E8);
@@ -27,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildCurrentScreen() {
     switch (_currentNav) {
+      case 1:
+        return const ExploreScreen();
       case 2:
         return const WishlistScreen();
       case 3:
@@ -34,6 +38,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       default:
         return _buildHomeContent();
     }
+  }
+
+  void _openCart() {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const CartScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+    );
   }
 
   @override
@@ -549,7 +575,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildFab() {
     return GestureDetector(
-      onTap: () {},
+      onTap: _openCart,
       child: Container(
         width: 52,
         height: 52,
