@@ -245,22 +245,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           children: [
             // Curved decorative shape
             Positioned(
-              right: -10,
-              top: -10,
-              bottom: -10,
-              child: CustomPaint(
-                size: const Size(200, 240),
-                painter: _CurvePainter(),
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(28),
+                  bottomRight: Radius.circular(28),
+                ),
+                child: CustomPaint(
+                  size: const Size(200, 240),
+                  painter: _CurvePainter(),
+                ),
               ),
             ),
             // Chair image
             Positioned(
-              right: 10,
-              top: -30,
-              child: Image.network(
-                'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300&q=80',
-                width: 180,
-                height: 200,
+              right: -30,
+              top: -80,
+              child: Image.asset(
+                'assets/images/chair.png',
+                width: 280,
+                height: 300,
                 fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) => Container(
                   width: 180,

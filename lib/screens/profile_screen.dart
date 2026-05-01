@@ -138,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Alex Morgan',
+              'Mouhcine Elmisiki',
               style: GoogleFonts.inter(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
@@ -147,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              'alex.morgan@email.com',
+              'mouhcineelmiski@email.com',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 color: _kSubText,
