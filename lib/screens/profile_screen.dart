@@ -127,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               child: Center(
                 child: Text(
-                  'AM',
+                  'ME',
                   style: GoogleFonts.inter(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
