@@ -56,7 +56,9 @@ flutter_launcher_icons:
   ios: true
   image_path: "assets/icons/mainIcon.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
-# The following section is specific to Flutter packages.
+  adaptive_icon_background: "#F5F0E8"
+  adaptive_icon_foreground: "assets/icons/logopng.png"
+  # The following section is specific to Flutter packages.
 flutter:
 
   # The following line ensures that the Material Icons font is
