@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_screen.dart';
 
 // Reuse shared palette
@@ -101,8 +102,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ],
                 ),
                 child: const Center(
-                  child: Icon(Icons.settings_outlined,
-                      size: 22, color: _kDarkGreen),
+                  child: Icon(
+                    Icons.settings_outlined,
+                    size: 22,
+                    color: _kDarkGreen,
+                  ),
                 ),
               ),
             ),
@@ -149,16 +153,12 @@ class _ProfileScreenState extends State<ProfileScreen>
             const SizedBox(height: 4),
             Text(
               'mouhcineelmiski@email.com',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: _kSubText,
-              ),
+              style: GoogleFonts.inter(fontSize: 14, color: _kSubText),
             ),
             const SizedBox(height: 12),
             // Member badge
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFFF5A623), Color(0xFFE8863A)],
@@ -177,8 +177,11 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.workspace_premium_rounded,
-                      size: 16, color: Colors.white),
+                  const Icon(
+                    Icons.workspace_premium_rounded,
+                    size: 16,
+                    color: Colors.white,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     'Gold Member',
@@ -216,8 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.6),
               borderRadius: BorderRadius.circular(24),
@@ -260,24 +262,14 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: _kSubText,
-            ),
-          ),
+          Text(label, style: GoogleFonts.inter(fontSize: 12, color: _kSubText)),
         ],
       ),
     );
   }
 
   Widget _divider() {
-    return Container(
-      width: 1,
-      height: 36,
-      color: _kSubText.withOpacity(0.15),
-    );
+    return Container(width: 1, height: 36, color: _kSubText.withOpacity(0.15));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -393,7 +385,11 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _menuTile(
-      IconData icon, String title, String subtitle, Color accentColor) {
+    IconData icon,
+    String title,
+    String subtitle,
+    Color accentColor,
+  ) {
     return GestureDetector(
       onTap: () {},
       behavior: HitTestBehavior.opaque,
@@ -425,16 +421,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: _kSubText,
-                    ),
+                    style: GoogleFonts.inter(fontSize: 12, color: _kSubText),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                size: 22, color: _kSubText),
+            const Icon(Icons.chevron_right_rounded, size: 22, color: _kSubText),
           ],
         ),
       ),
@@ -444,10 +436,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _menuDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: Divider(
-        height: 1,
-        color: _kSubText.withOpacity(0.1),
-      ),
+      child: Divider(height: 1, color: _kSubText.withOpacity(0.1)),
     );
   }
 
@@ -485,11 +474,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 true,
               ),
               _menuDivider(),
-              _settingsTile(
-                Icons.dark_mode_outlined,
-                'Dark Mode',
-                false,
-              ),
+              _settingsTile(Icons.dark_mode_outlined, 'Dark Mode', false),
               _menuDivider(),
               _menuTile(
                 Icons.language_rounded,
@@ -560,7 +545,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: GestureDetector(
-          onTap: () {
+          onTap: () async {
+            await Supabase.instance.client.auth.signOut();
+            if (!context.mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => const AuthScreen()),
               (route) => false,
@@ -578,8 +565,11 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.logout_rounded,
-                      size: 20, color: Colors.red.shade400),
+                  Icon(
+                    Icons.logout_rounded,
+                    size: 20,
+                    color: Colors.red.shade400,
+                  ),
                   const SizedBox(width: 10),
                   Text(
                     'Log Out',

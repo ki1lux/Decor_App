@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_screen.dart';
 
 // ─── Color Palette ──────────────────────────────────────────────────────────
@@ -20,9 +21,11 @@ class AuthScreen extends StatefulWidget {
 }
 
 enum AuthMode { login, signup }
+
 enum UserRole { client, seller }
 
-class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
   AuthMode _authMode = AuthMode.login;
   UserRole _selectedRole = UserRole.client;
 
@@ -47,6 +50,19 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       curve: Curves.easeIn,
     );
     _animationController.forward();
+
+    _checkExistingSession();
+  }
+
+  Future<void> _checkExistingSession() async {
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      });
+    }
   }
 
   @override
@@ -59,7 +75,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
   void _toggleMode() {
     setState(() {
-      _authMode = _authMode == AuthMode.login ? AuthMode.signup : AuthMode.login;
+      _authMode = _authMode == AuthMode.login
+          ? AuthMode.signup
+          : AuthMode.login;
     });
     _animationController.reset();
     _animationController.forward();
@@ -79,21 +97,36 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     });
 
     try {
-      // Simulate network request
-      await Future.delayed(const Duration(seconds: 1));
-      
+      if (_authMode == AuthMode.login) {
+        await Supabase.instance.client.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+      } else {
+        await Supabase.instance.client.auth.signUp(
+          email: email,
+          password: password,
+          data: {
+            'role': _selectedRole == UserRole.client ? 'client' : 'seller',
+          },
+        );
+      }
+
       if (!mounted) return;
-      
+
       // Navigate to Home
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const HomeScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 600),
         ),
       );
+    } on AuthException catch (e) {
+      _showError(e.message);
     } catch (e) {
       _showError('An unexpected error occurred.');
     } finally {
@@ -153,7 +186,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               ),
             ),
           ),
-          
+
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -170,11 +203,15 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                           color: kDarkGreen.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.chair_rounded, size: 64, color: kDarkGreen),
+                        child: const Icon(
+                          Icons.chair_rounded,
+                          size: 64,
+                          color: kDarkGreen,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Title
                     Text(
                       isLogin ? 'Welcome Back' : 'Create Account',
@@ -188,14 +225,11 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      isLogin 
+                      isLogin
                           ? 'Sign in to discover premium furniture'
                           : 'Sign up to start your journey',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        color: kSubText,
-                      ),
+                      style: GoogleFonts.inter(fontSize: 15, color: kSubText),
                     ),
                     const SizedBox(height: 48),
 
@@ -205,7 +239,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(28),
-                        border: Border.all(color: Colors.white.withOpacity(0.8)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.8),
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.04),
@@ -229,7 +265,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                   )
                                 : const SizedBox.shrink(),
                           ),
-                          
+
                           // Email Field
                           _buildTextField(
                             controller: _emailController,
@@ -238,7 +274,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             keyboardType: TextInputType.emailAddress,
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Password Field
                           _buildTextField(
                             controller: _passwordController,
@@ -247,7 +283,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                             obscureText: _obscurePassword,
                             isPassword: true,
                           ),
-                          
+
                           if (isLogin) ...[
                             const SizedBox(height: 16),
                             Align(
@@ -262,9 +298,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                               ),
                             ),
                           ],
-                          
+
                           const SizedBox(height: 32),
-                          
+
                           // Submit Button
                           GestureDetector(
                             onTap: _isLoading ? null : _submit,
@@ -311,13 +347,15 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
+
                     // Toggle Mode Button
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          isLogin ? "Don't have an account? " : "Already have an account? ",
+                          isLogin
+                              ? "Don't have an account? "
+                              : "Already have an account? ",
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             color: kSubText,
@@ -435,14 +473,19 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                     });
                   },
                   child: Icon(
-                    _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    _obscurePassword
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
                     color: kSubText,
                     size: 20,
                   ),
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
       ),
     );
