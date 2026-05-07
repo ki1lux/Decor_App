@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 // ─── Color Palette ──────────────────────────────────────────────────────────
 const Color kBackground = Color(0xFFF5F0E8);
@@ -28,6 +30,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final supabase = Supabase.instance.client;
 
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -80,7 +83,23 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
     try {
       // Simulate network request
+
       await Future.delayed(const Duration(seconds: 1));
+
+      if (_authMode == AuthMode.login) {
+        await Supabase.instance.client.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+      } else {
+        await Supabase.instance.client.auth.signUp(
+          email: email,
+          password: password,
+          data: {
+            'role': _selectedRole == UserRole.client ? 'client' : 'seller',
+          },
+        );
+      }
       
       if (!mounted) return;
       
