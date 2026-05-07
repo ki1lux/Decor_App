@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/home_screen.dart';
+import 'screens/auth_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'supabase_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SupabaseHelper.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -44,8 +46,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      // home: showOnboarding ? const OnboardingScreen() : const HomeScreen(),
-      home:  OnboardingScreen() ,
+      home: showOnboarding ? const OnboardingScreen() : const AuthScreen(),
 
     );
   }

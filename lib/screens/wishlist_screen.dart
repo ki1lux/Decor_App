@@ -22,6 +22,7 @@ class _WishlistScreenState extends State<WishlistScreen>
     with TickerProviderStateMixin {
   late final AnimationController _staggerController;
 
+//hard coded data for wishlist items
   final List<Map<String, dynamic>> _wishlistItems = [
     {
       'name': 'Minimalist Armchair',

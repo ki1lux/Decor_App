@@ -37,6 +37,7 @@ dependencies:
   google_fonts: ^8.1.0
   shared_preferences: ^2.5.3
   flutter_launcher_icons: ^0.14.4
+  supabase_flutter: ^2.12.4
 
 dev_dependencies:
   flutter_test:
