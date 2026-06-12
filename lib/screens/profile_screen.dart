@@ -24,14 +24,39 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
+  User? _currentUser;
+  String _userRole = 'client';
+  String? _fullName;
 
   @override
   void initState() {
     super.initState();
+    _currentUser = Supabase.instance.client.auth.currentUser;
+    if (_currentUser != null) {
+      _fetchProfile();
+    }
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..forward();
+  }
+
+  Future<void> _fetchProfile() async {
+    try {
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select('role, full_name')
+          .eq('id', _currentUser!.id)
+          .single();
+      if (mounted) {
+        setState(() {
+          _userRole = data['role'] as String? ?? 'client';
+          _fullName = data['full_name'] as String?;
+        });
+      }
+    } catch (e) {
+      // Ignore gracefully
+    }
   }
 
   @override
@@ -77,6 +102,28 @@ class _ProfileScreenState extends State<ProfileScreen>
       parent: _animController,
       curve: const Interval(0.0, 0.5, curve: Curves.easeOutCubic),
     );
+
+    String displayName = 'User';
+    String displayInitials = 'US';
+    
+    if (_fullName != null && _fullName!.trim().isNotEmpty) {
+      displayName = _fullName!;
+      final parts = _fullName!.split(' ').where((p) => p.isNotEmpty).toList();
+      if (parts.length > 1) {
+        displayInitials = (parts[0][0] + parts[1][0]).toUpperCase();
+      } else {
+        displayInitials = parts[0].substring(0, math.min(2, parts[0].length)).toUpperCase();
+      }
+    } else if (_currentUser?.email != null) {
+      final emailParts = _currentUser!.email!.split('@');
+      if (emailParts.isNotEmpty) {
+        final rawName = emailParts.first;
+        if (rawName.isNotEmpty) {
+          displayName = rawName[0].toUpperCase() + rawName.substring(1);
+          displayInitials = rawName.substring(0, math.min(2, rawName.length)).toUpperCase();
+        }
+      }
+    }
 
     return FadeTransition(
       opacity: fadeIn,
@@ -132,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               child: Center(
                 child: Text(
-                  'ME',
+                  displayInitials,
                   style: GoogleFonts.inter(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -143,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Mouhcine Elmisiki',
+              displayName,
               style: GoogleFonts.inter(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
@@ -152,23 +199,29 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              'mouhcineelmiski@email.com',
+              _currentUser?.email ?? 'not-logged-in@email.com',
               style: GoogleFonts.inter(fontSize: 14, color: _kSubText),
             ),
             const SizedBox(height: 12),
-            // Member badge
+            // Role badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFF5A623), Color(0xFFE8863A)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient: _userRole == 'seller'
+                    ? const LinearGradient(
+                        colors: [Color(0xFFF5A623), Color(0xFFE8863A)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : const LinearGradient(
+                        colors: [Color(0xFF8B9E7C), Color(0xFF5C6B50)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: _kAccentOrange.withOpacity(0.3),
+                    color: (_userRole == 'seller' ? _kAccentOrange : _kMutedGreen).withOpacity(0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -177,14 +230,16 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.workspace_premium_rounded,
+                  Icon(
+                    _userRole == 'seller'
+                        ? Icons.storefront_rounded
+                        : Icons.person_rounded,
                     size: 16,
                     color: Colors.white,
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Gold Member',
+                    _userRole == 'seller' ? 'Seller Account' : 'Client Account',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,

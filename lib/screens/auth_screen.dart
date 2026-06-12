@@ -22,12 +22,9 @@ class AuthScreen extends StatefulWidget {
 
 enum AuthMode { login, signup }
 
-enum UserRole { client, seller }
-
 class _AuthScreenState extends State<AuthScreen>
     with SingleTickerProviderStateMixin {
   AuthMode _authMode = AuthMode.login;
-  UserRole _selectedRole = UserRole.client;
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -106,9 +103,6 @@ class _AuthScreenState extends State<AuthScreen>
         await Supabase.instance.client.auth.signUp(
           email: email,
           password: password,
-          data: {
-            'role': _selectedRole == UserRole.client ? 'client' : 'seller',
-          },
         );
       }
 
@@ -252,17 +246,12 @@ class _AuthScreenState extends State<AuthScreen>
                       ),
                       child: Column(
                         children: [
-                          // Role Selection (Only for Sign Up)
+                          // Form spacing
                           AnimatedSize(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                             child: !isLogin
-                                ? Column(
-                                    children: [
-                                      _buildRoleSelector(),
-                                      const SizedBox(height: 20),
-                                    ],
-                                  )
+                                ? const SizedBox(height: 8)
                                 : const SizedBox.shrink(),
                           ),
 
@@ -384,59 +373,7 @@ class _AuthScreenState extends State<AuthScreen>
     );
   }
 
-  Widget _buildRoleSelector() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: kBackground.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: _buildRoleButton('Client', UserRole.client)),
-          Expanded(child: _buildRoleButton('Seller', UserRole.seller)),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildRoleButton(String title, UserRole role) {
-    final isSelected = _selectedRole == role;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedRole = role;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [],
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? kDarkGreen : kSubText,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildTextField({
     required TextEditingController controller,
